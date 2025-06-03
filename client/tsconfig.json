@@ -12,6 +12,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
+    "types": ["vite/client"],
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
@@ -20,6 +21,6 @@
       "../../shared/*": ["../shared/*"]
     }
   },
-  "include": ["src", "../shared/**/*"],
+  "include": ["src", "src/vite-env.d.ts", "../shared/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
