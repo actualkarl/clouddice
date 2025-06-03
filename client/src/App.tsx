@@ -1,15 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import io, { Socket } from 'socket.io-client';
-import { User, DiceRoll, JoinedData, ServerToClientEvents, ClientToServerEvents } from '../../shared/types';
+import { User, DiceRoll } from '../../shared/types';
+import { MAX_ROLL_HISTORY } from '../../shared/constants';
+import { useSocket } from './hooks';
 import JoinRoom from './components/JoinRoom';
 import DiceTable from './components/DiceTable';
 import RollHistory from './components/RollHistory';
 import UserList from './components/UserList';
-
-type SocketType = Socket<ServerToClientEvents, ClientToServerEvents>;
+import ErrorMessage from './components/ErrorMessage';
 
 function App() {
-  const [socket, setSocket] = useState<SocketType | null>(null);
   const [nickname, setNickname] = useState('');
   const [joined, setJoined] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -17,42 +16,25 @@ function App() {
   const [isRolling, setIsRolling] = useState(false);
   const [currentRoll, setCurrentRoll] = useState<DiceRoll | null>(null);
   const [myUserId, setMyUserId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
-    const newSocket = io(serverUrl) as SocketType;
-    setSocket(newSocket);
-
-    newSocket.on('joined', (data: JoinedData) => {
+  // Socket event handlers
+  const { error, connected, join, rollDice } = useSocket({
+    onJoined: (data) => {
       setMyUserId(data.userId);
       setUsers(data.users);
       setRolls(data.recentRolls);
       setJoined(true);
-      setError(null);
-    });
-
-    newSocket.on('userJoined', (user: User) => {
+    },
+    onUserJoined: (user) => {
       setUsers(prev => [...prev, user]);
-    });
-
-    newSocket.on('userLeft', (userId: string) => {
+    },
+    onUserLeft: (userId) => {
       setUsers(prev => prev.filter(u => u.id !== userId));
-    });
-
-    newSocket.on('diceRolled', (roll: DiceRoll) => {
-      setRolls(prev => [...prev.slice(-49), roll]); // Keep last 50 rolls
-    });
-
-    newSocket.on('error', (message: string) => {
-      setError(message);
-      console.error('Server error:', message);
-    });
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
+    },
+    onDiceRolled: (roll) => {
+      setRolls(prev => [...prev.slice(-(MAX_ROLL_HISTORY - 1)), roll]); // Keep last MAX_ROLL_HISTORY rolls
+    },
+  });
 
   // Handle when my roll is received
   useEffect(() => {
@@ -69,20 +51,19 @@ function App() {
   }, [rolls, myUserId, isRolling]);
 
   const handleJoin = useCallback((nickname: string) => {
-    if (socket && nickname.trim()) {
+    if (nickname.trim()) {
       setNickname(nickname);
-      socket.emit('join', nickname.trim());
+      join(nickname.trim());
     }
-  }, [socket]);
+  }, [join]);
 
   const handleRoll = useCallback((diceCount: number) => {
-    if (socket && !isRolling) {
+    if (!isRolling && connected) {
       setIsRolling(true);
       setCurrentRoll(null);
-      setError(null);
-      socket.emit('roll', diceCount);
+      rollDice(diceCount);
     }
-  }, [socket, isRolling]);
+  }, [isRolling, connected, rollDice]);
 
   if (!joined) {
     return <JoinRoom onJoin={handleJoin} error={error} />;
@@ -96,11 +77,7 @@ function App() {
           <span className="text-gray-400">Playing as: {nickname}</span>
         </div>
         
-        {error && (
-          <div className="bg-red-600 text-white p-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        {error && <ErrorMessage message={error} />}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">

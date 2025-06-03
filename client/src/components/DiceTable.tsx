@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DiceRoll } from '../../../shared/types';
+import { MIN_DICE, MAX_DICE } from '../../../shared/constants';
 
 interface DiceTableProps {
   isRolling: boolean;
@@ -64,7 +65,7 @@ function DiceTable({ isRolling, currentRoll, onRoll }: DiceTableProps) {
             disabled={isRolling}
             className="bg-gray-700 text-white rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+            {Array.from({ length: MAX_DICE }, (_, i) => i + MIN_DICE).map(n => (
               <option key={n} value={n}>{n}</option>
             ))}
           </select>

@@ -3,6 +3,16 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { User, DiceRoll, ServerToClientEvents, ClientToServerEvents } from '../../shared/types';
+import { 
+  MIN_DICE, 
+  MAX_DICE, 
+  DICE_SIDES, 
+  MAX_ROLL_HISTORY, 
+  MAX_NICKNAME_LENGTH,
+  DEFAULT_PORT,
+  VALIDATION_MESSAGES 
+} from '../../shared/constants';
+import { ServerErrorHandler, ERROR_MESSAGES } from '../../shared/errors';
 
 const app = express();
 app.use(cors());
@@ -23,12 +33,6 @@ const room = {
   rolls: [] as DiceRoll[]
 };
 
-// Constants
-const MAX_DICE = 10;
-const MIN_DICE = 1;
-const DICE_SIDES = 6;
-const MAX_ROLL_HISTORY = 50;
-
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -36,11 +40,11 @@ io.on('connection', (socket) => {
     try {
       // Validate nickname
       if (!nickname || nickname.trim().length === 0) {
-        socket.emit('error', 'Nickname is required');
+        socket.emit('error', ERROR_MESSAGES.NICKNAME_REQUIRED);
         return;
       }
 
-      const sanitizedNickname = nickname.trim().slice(0, 20);
+      const sanitizedNickname = nickname.trim().slice(0, MAX_NICKNAME_LENGTH);
       
       const user: User = {
         id: socket.id,
@@ -61,8 +65,8 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('userJoined', user);
       console.log(`${sanitizedNickname} joined the room`);
     } catch (error) {
-      console.error('Error in join handler:', error);
-      socket.emit('error', 'Failed to join room');
+      const message = ServerErrorHandler.handle(error, 'join room');
+      socket.emit('error', message);
     }
   });
 
@@ -70,7 +74,7 @@ io.on('connection', (socket) => {
     try {
       const user = room.users.get(socket.id);
       if (!user) {
-        socket.emit('error', 'You must join first');
+        socket.emit('error', ERROR_MESSAGES.JOIN_REQUIRED);
         return;
       }
 
@@ -106,8 +110,8 @@ io.on('connection', (socket) => {
       
       console.log(`${user.nickname} rolled ${count} dice: ${values.join(', ')} (Total: ${total})`);
     } catch (error) {
-      console.error('Error in roll handler:', error);
-      socket.emit('error', 'Failed to roll dice');
+      const message = ServerErrorHandler.handle(error, 'roll dice');
+      socket.emit('error', message);
     }
   });
 
@@ -125,7 +129,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || DEFAULT_PORT;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('CORS origins:', ["http://localhost:5173", "http://localhost:5174", /\.ngrok\.io$/, /\.ngrok-free\.app$/]);
