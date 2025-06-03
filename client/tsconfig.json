@@ -5,7 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -21,6 +21,6 @@
       "../../shared/*": ["../shared/*"]
     }
   },
-  "include": ["src", "src/vite-env.d.ts", "../shared/**/*"],
+  "include": ["src", "vite-env.d.ts", "../shared/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
