@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import { User, DiceRoll, ServerToClientEvents, ClientToServerEvents } from '../../shared/types';
+import { User, DiceRoll, ServerToClientEvents, ClientToServerEvents } from './shared/types';
 import { 
   MIN_DICE, 
   MAX_DICE, 
@@ -11,17 +11,37 @@ import {
   MAX_NICKNAME_LENGTH,
   DEFAULT_PORT,
   VALIDATION_MESSAGES 
-} from '../../shared/constants';
-import { ServerErrorHandler, ERROR_MESSAGES } from '../../shared/errors';
+} from './shared/constants';
+import { ServerErrorHandler, ERROR_MESSAGES } from './shared/errors';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'Cloud Dice Server is running!', 
+    timestamp: new Date().toISOString(),
+    connectedUsers: room.users.size
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', uptime: process.uptime() });
+});
+
 const httpServer = createServer(app);
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174", /\.ngrok\.io$/, /\.ngrok-free\.app$/],
+    origin: [
+      "http://localhost:5173", 
+      "http://localhost:5174", 
+      "https://clouddice-frontend.onrender.com",
+      /\.ngrok\.io$/, 
+      /\.ngrok-free\.app$/,
+      /\.onrender\.com$/
+    ],
     methods: ["GET", "POST"],
     credentials: true
   }

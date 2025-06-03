@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Production Server
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: production
+    container_name: clouddice-server-prod
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    networks:
+      - clouddice-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Production Client
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: production
+    container_name: clouddice-client-prod
+    ports:
+      - "80:80"
+    environment:
+      - VITE_SERVER_URL=http://localhost:3001
+    networks:
+      - clouddice-network
+    depends_on:
+      - server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Reverse Proxy with SSL
+  nginx:
+    image: nginx:alpine
+    container_name: clouddice-proxy
+    ports:
+      - "443:443"
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/ssl:ro
+    networks:
+      - clouddice-network
+    depends_on:
+      - client
+      - server
+    restart: unless-stopped
+    profiles:
+      - with-ssl
+
+networks:
+  clouddice-network:
+    driver: bridge

@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
-import { MAX_NICKNAME_LENGTH } from '../../../shared/constants';
 import ErrorMessage from './ErrorMessage';
+
+const MAX_NICKNAME_LENGTH = 20;
 
 interface JoinRoomProps {
   onJoin: (nickname: string) => void;

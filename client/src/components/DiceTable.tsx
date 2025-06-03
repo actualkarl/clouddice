@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { DiceRoll } from '../../../shared/types';
-import { MIN_DICE, MAX_DICE } from '../../../shared/constants';
+import { DiceRoll } from '../shared/types';
+
+const MIN_DICE = 1;
+const MAX_DICE = 10;
 
 interface DiceTableProps {
   isRolling: boolean;

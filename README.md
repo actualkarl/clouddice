@@ -9,9 +9,20 @@ A real-time dice rolling application with WebSocket synchronization.
 - Roll history
 - Simple 6-sided dice
 
-## Setup
+## 🚀 Quick Start Options
 
-### Install dependencies
+### Option 1: Docker (Recommended) 🐳
+```bash
+# Start development environment
+npm run docker:dev
+```
+**Access:** http://localhost:5173
+
+📖 **See [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md) for detailed Docker instructions**
+
+### Option 2: Traditional Setup
+
+#### Install dependencies
 ```bash
 # Root dependencies
 npm install
@@ -63,3 +74,20 @@ This will start:
 - Frontend: React + TypeScript + Tailwind CSS + Vite
 - Backend: Node.js + Express + Socket.io + TypeScript
 - Real-time: WebSocket communication
+- Containerization: Docker + Docker Compose
+
+## 🌍 Deployment Options
+
+### 🎆 Quick Deploy (Free):
+- **Render.com:** See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
+- **Vercel + Render:** See [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### 🐳 Docker Deploy:
+- **Any Docker Platform:** See [DOCKER_GUIDE.md](DOCKER_GUIDE.md)
+- **Local Production:** `npm run docker:prod`
+
+### 🛠️ Development:
+- **Docker:** `npm run docker:dev` (recommended)
+- **Traditional:** `npm run dev`
+
+Choose the deployment method that best fits your needs!

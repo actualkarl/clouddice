@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Development Server
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: development
+    container_name: clouddice-server-dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server/src:/app/server/src
+      - ./shared:/app/shared
+      - /app/server/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    networks:
+      - clouddice-network
+    restart: unless-stopped
+
+  # Development Client
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: build
+    container_name: clouddice-client-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client/src:/app/client/src
+      - ./client/public:/app/client/public
+      - ./shared:/app/shared
+      - /app/client/node_modules
+    environment:
+      - VITE_SERVER_URL=http://localhost:3001
+    networks:
+      - clouddice-network
+    depends_on:
+      - server
+    restart: unless-stopped
+    command: sh -c "cd client && npm run dev -- --host 0.0.0.0"
+
+networks:
+  clouddice-network:
+    driver: bridge
+
+volumes:
+  server_node_modules:
+  client_node_modules:

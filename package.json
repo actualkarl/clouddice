@@ -10,7 +10,15 @@
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
     "build": "npm run build:client && npm run build:server",
-    "start": "node server/dist/index.js"
+    "start": "node server/dist/index.js",
+    "docker:dev": "docker-compose up",
+    "docker:dev:build": "docker-compose up --build",
+    "docker:dev:down": "docker-compose down",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up",
+    "docker:prod:build": "docker-compose -f docker-compose.prod.yml up --build",
+    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
+    "docker:build": "docker-compose build",
+    "docker:clean": "docker-compose down -v --remove-orphans && docker system prune -f"
   },
   "keywords": ["dice", "realtime", "websocket", "game"],
   "author": "",

@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { User, DiceRoll } from '../../shared/types';
-import { MAX_ROLL_HISTORY } from '../../shared/constants';
+import { User, DiceRoll } from './shared/types';
 import { useSocket } from './hooks';
 import JoinRoom from './components/JoinRoom';
 import DiceTable from './components/DiceTable';
 import RollHistory from './components/RollHistory';
 import UserList from './components/UserList';
 import ErrorMessage from './components/ErrorMessage';
+
+const MAX_ROLL_HISTORY = 50;
 
 function App() {
   const [nickname, setNickname] = useState('');

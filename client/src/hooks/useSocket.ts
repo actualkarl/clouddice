@@ -6,9 +6,16 @@ import {
   JoinedData, 
   ServerToClientEvents, 
   ClientToServerEvents 
-} from '../../../shared/types';
-import { SOCKET_RECONNECT_ATTEMPTS, SOCKET_RECONNECT_DELAY } from '../../../shared/constants';
-import { ERROR_MESSAGES } from '../../../shared/errors';
+} from '../shared/types';
+// Connection constants
+const SOCKET_RECONNECT_ATTEMPTS = 5;
+const SOCKET_RECONNECT_DELAY = 1000;
+
+// Error messages
+const ERROR_MESSAGES = {
+  NOT_CONNECTED: 'Not connected to server',
+  RECONNECT_FAILED: 'Failed to reconnect to server',
+} as const;
 
 type SocketType = Socket<ServerToClientEvents, ClientToServerEvents>;
 
