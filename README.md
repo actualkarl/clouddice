@@ -1,93 +1,79 @@
-# Cloud Dice - Simple Version
+# Cloud Dice 🎲
 
-A real-time dice rolling application with WebSocket synchronization.
+A real-time synchronized dice rolling application where friends can roll dice together online!
 
 ## Features
-- Single shared room for all users
-- Real-time dice rolling with animation
-- User list showing all connected players
-- Roll history
-- Simple 6-sided dice
 
-## 🚀 Quick Start Options
+- 🎯 Real-time dice rolling synchronization
+- 👥 See who's in the room with you  
+- 🎲 Roll multiple dice (1-10 at once)
+- 📜 Rolling history for all players
+- ⚡ Instant updates via WebSockets
+- 🎨 Clean, modern UI
 
-### Option 1: Docker (Recommended) 🐳
+## Quick Start
+
+### Deploy on Replit (Easiest)
+
+1. Go to [replit.com](https://replit.com)
+2. Click "Create Repl" → "Import from GitHub"
+3. Paste this repository URL
+4. Click Import and wait for it to start!
+
+See [REPLIT_DEPLOYMENT.md](REPLIT_DEPLOYMENT.md) for details.
+
+### Local Development
+
+**Prerequisites:** Node.js 18+ and npm
+
 ```bash
-# Start development environment
-npm run docker:dev
-```
-**Access:** http://localhost:5173
+# Clone and install
+git clone <your-repo-url>
+cd clouddice
+npm run install:all
 
-📖 **See [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md) for detailed Docker instructions**
-
-### Option 2: Traditional Setup
-
-#### Install dependencies
-```bash
-# Root dependencies
-npm install
-
-# Server dependencies
-cd server && npm install && cd ..
-
-# Client dependencies
-cd client && npm install && cd ..
-```
-
-### Run development servers
-
-**For Windows:**
-```bash
-# From root directory, this opens two separate command windows
-npm run dev:win
-```
-
-**For Mac/Linux:**
-```bash
-# From root directory, run both client and server
+# Run development servers
 npm run dev
 ```
 
-**Alternative (manual method for any OS):**
-```bash
-# Terminal 1 - Server
-cd server
-npm run dev
+- Frontend: http://localhost:5173
+- Backend: http://localhost:3001
 
-# Terminal 2 - Client (new terminal window)
-cd client
-npm run dev
-```
+## How to Play
 
-This will start:
-- Server on http://localhost:3001
-- Client on http://localhost:5173
-
-## How to use
-1. Open http://localhost:5173 in your browser
-2. Enter your nickname
-3. Click "Join Room"
-4. Click "Roll Dice" to roll
-5. See other players' rolls in real-time
+1. **Join**: Enter your nickname
+2. **Roll**: Click "Roll X Dice" 
+3. **Watch**: See everyone's rolls in real-time
+4. **Share**: Send the URL to friends!
 
 ## Tech Stack
-- Frontend: React + TypeScript + Tailwind CSS + Vite
-- Backend: Node.js + Express + Socket.io + TypeScript
-- Real-time: WebSocket communication
-- Containerization: Docker + Docker Compose
 
-## 🌍 Deployment Options
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS
+- **Backend**: Node.js + Express + Socket.IO + TypeScript  
+- **Real-time**: WebSocket communication
 
-### 🎆 Quick Deploy (Free):
-- **Render.com:** See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
-- **Vercel + Render:** See [DEPLOYMENT.md](DEPLOYMENT.md)
+## Project Structure
 
-### 🐳 Docker Deploy:
-- **Any Docker Platform:** See [DOCKER_GUIDE.md](DOCKER_GUIDE.md)
-- **Local Production:** `npm run docker:prod`
+```
+clouddice/
+├── client/         # React frontend
+├── server/         # Node.js backend  
+├── shared/         # Shared TypeScript types
+├── .replit         # Replit configuration
+└── index.js        # Replit entry point
+```
 
-### 🛠️ Development:
-- **Docker:** `npm run docker:dev` (recommended)
-- **Traditional:** `npm run dev`
+## Contributing
 
-Choose the deployment method that best fits your needs!
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+MIT License - feel free to use this for your own projects!
+
+---
+
+Built with ❤️ for synchronized dice rolling fun!

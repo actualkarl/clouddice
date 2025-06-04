@@ -19,7 +19,13 @@
       "Bash(npm run dev:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run build:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(docker-compose:*)",
+      "Bash(chmod:*)",
+      "Bash(./cleanup-for-replit.sh:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
