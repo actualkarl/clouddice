@@ -12,3 +12,12 @@ coverage/
 .npm
 .yarn-integrity
 *.tsbuildinfo
+
+# Replit files (include in repo for deployment)
+# .replit
+# replit.nix
+.config/
+.upm/
+
+# Archive (can be deleted after confirming Replit works)
+# archive-deployment/
