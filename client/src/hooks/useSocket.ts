@@ -43,7 +43,9 @@ export function useSocket(events: SocketEvents): UseSocketResult {
   const reconnectAttempts = useRef(0);
 
   useEffect(() => {
-    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+    // In production (Replit), use same domain; in development, use localhost:3001
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 
+                     (import.meta.env.PROD ? '' : 'http://localhost:3001');
     const newSocket = io(serverUrl, {
       reconnection: true,
       reconnectionAttempts: SOCKET_RECONNECT_ATTEMPTS,

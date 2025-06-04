@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import path from 'path';
 import { User, DiceRoll, ServerToClientEvents, ClientToServerEvents } from './shared/types';
 import { 
   MIN_DICE, 
@@ -18,8 +19,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
-app.get('/', (req, res) => {
+// Serve static files from client/dist for production
+const clientDistPath = path.join(__dirname, '../../client/dist');
+app.use(express.static(clientDistPath));
+
+// API endpoints
+app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'Cloud Dice Server is running!', 
     timestamp: new Date().toISOString(),
@@ -31,6 +36,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
 });
 
+// Serve React app for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+
 const httpServer = createServer(app);
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
@@ -40,7 +50,9 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
       "https://clouddice-frontend.onrender.com",
       /\.ngrok\.io$/, 
       /\.ngrok-free\.app$/,
-      /\.onrender\.com$/
+      /\.onrender\.com$/,
+      /\.repl\.co$/,
+      /\.replit\.dev$/
     ],
     methods: ["GET", "POST"],
     credentials: true
