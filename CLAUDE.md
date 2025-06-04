@@ -10,12 +10,15 @@ Cloud Dice is a real-time synchronized dice rolling web application built with R
 - ✅ Component-based architecture
 - ✅ TypeScript with shared types
 - ✅ Error handling and validation
+- ✅ Docker support for deployment
+- ✅ Render deployment configuration
 
 ## Tech Stack
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS
 - **Backend**: Node.js + Express + Socket.IO + TypeScript
 - **Shared Types**: TypeScript interfaces in `/shared/types.ts`
 - **Real-time**: WebSocket communication
+- **Deployment**: Docker, Render (split services)
 
 ## Project Structure
 ```
@@ -33,28 +36,55 @@ Cloud Dice is a real-time synchronized dice rolling web application built with R
 │       └── index.ts         # WebSocket server
 ├── shared/
 │   └── types.ts             # Shared TypeScript types
-└── package.json             # Root scripts
+├── render.yaml              # Render deployment config
+├── docker-compose.yml       # Development Docker
+└── docker-compose.prod.yml  # Production Docker
 ```
 
-## Development Commands
+## Development Setup (Windows WSL)
 
-### Windows Setup (IMPORTANT)
+### Prerequisites for WSL
 ```bash
-# Install global dependencies first
-npm install -g vite nodemon typescript ts-node
+# Update WSL Ubuntu packages
+sudo apt update && sudo apt upgrade -y
 
-# Install project dependencies
+# Install Node.js via nvm (recommended for WSL)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
+nvm install 18
+nvm use 18
+
+# Verify installations
+node --version  # Should be v18.x.x
+npm --version   # Should be 9.x.x or higher
+```
+
+### Project Setup in WSL
+```bash
+# Clone the project (if not already done)
+cd /mnt/c/Users/GGPC/Downloads/Coding_Projects/
+git clone <your-repo-url> clouddice
+cd clouddice
+
+# Install dependencies
 npm install
 cd server && npm install && cd ..
 cd client && npm install && cd ..
 
-# Run development servers (2 terminals)
+# Run development servers (2 terminals in WSL)
 # Terminal 1:
 cd server && npm run dev
 
 # Terminal 2:
 cd client && npm run dev
 ```
+
+### WSL-Specific Notes
+- Access the app at `http://localhost:5173` (Vite dev server)
+- Server runs on `http://localhost:3001`
+- Use VS Code with WSL extension for best experience
+- File watching works better in WSL2 than WSL1
+- If port conflicts occur, check Windows processes: `netstat -ano | findstr :3001`
 
 ### Key Files to Understand
 1. `/shared/types.ts` - All TypeScript interfaces
@@ -118,3 +148,107 @@ When making changes, test:
 3. Remember Windows users need special handling for commands
 4. Keep roll history limited to prevent memory issues
 5. Always emit events to all users (use `io.emit` not `socket.emit` for rolls)
+
+## Render Deployment (Split Services)
+
+### Overview
+The application is deployed on Render as two separate services:
+- **Backend**: Node.js web service
+- **Frontend**: Static site with Vite build
+
+### Deployment Configuration
+The `render.yaml` file defines both services:
+
+```yaml
+services:
+  # Backend API Service
+  - type: web
+    name: clouddice-server
+    env: node
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
+  # Frontend Static Site
+  - type: static
+    name: clouddice-frontend
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    envVars:
+      - key: VITE_SERVER_URL
+        value: https://clouddice-server.onrender.com
+```
+
+### Deployment Steps
+
+1. **Prepare Your Repository**
+   ```bash
+   # Ensure all changes are committed
+   git add .
+   git commit -m "Prepare for Render deployment"
+   git push origin main
+   ```
+
+2. **Deploy to Render**
+   - Go to [render.com](https://render.com)
+   - Connect your GitHub repository
+   - Choose "Blueprint" deployment (uses render.yaml)
+   - Render will automatically create both services
+
+3. **Environment Variables**
+   - Backend automatically uses PORT 10000
+   - Frontend needs VITE_SERVER_URL pointing to backend URL
+   - Update VITE_SERVER_URL after backend deploys
+
+4. **Post-Deployment**
+   - Test WebSocket connections
+   - Verify CORS settings work correctly
+   - Check that both services are healthy
+
+### Troubleshooting Render Deployment
+
+1. **Build Failures**
+   - Check Node version compatibility
+   - Ensure TypeScript is in dependencies, not just devDependencies
+   - Verify all required packages are listed
+
+2. **WebSocket Issues**
+   - Render supports WebSockets on all plans
+   - Ensure client uses wss:// for secure connections
+   - Check CORS configuration includes Render domains
+
+3. **Static Site Issues**
+   - Verify build output is in `client/dist`
+   - Check that index.html exists after build
+   - Ensure Vite base URL is configured correctly
+
+### Local Testing of Production Build
+```bash
+# Build both services locally
+npm run build
+
+# Test production builds
+# Terminal 1 - Backend
+cd server
+NODE_ENV=production PORT=10000 npm start
+
+# Terminal 2 - Frontend (use a static server)
+cd client
+npx serve dist -p 5000
+```
+
+### Alternative Docker Deployment on Render
+If you prefer Docker deployment:
+1. Uncomment the Docker service in render.yaml
+2. Comment out the split services
+3. Push changes and redeploy
+
+### Monitoring and Logs
+- Use Render dashboard for logs
+- Monitor WebSocket connections
+- Set up alerts for service health
+- Check memory usage (Socket.IO can be memory intensive)
