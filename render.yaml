@@ -3,10 +3,14 @@ services:
   # Backend API Server
   - type: web
     name: clouddice-server
-    env: node
+    runtime: node
     plan: free
-    buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && npm run start
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    buildFilter:
+      paths:
+        - server/**
     envVars:
       - key: NODE_ENV
         value: production
